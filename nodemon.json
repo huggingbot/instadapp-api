@@ -1,0 +1,12 @@
+{
+  "watch": ["src"],
+  "ext": "ts,js,json",
+  "exec": "ts-node -r tsconfig-paths/register --files src/index.ts",
+  "events": {
+    "crash": "kill-port 3010"
+  },
+  "delay": "1500",
+  "env": {
+    "NODE_ENV": "development"
+  }
+}
