@@ -130,3 +130,15 @@ export interface IPosition {
     borrowRewardRate: string // number
   }[]
 }
+
+// Prices
+export interface IPrice {
+  [TOKEN.weth.address]: string // number
+  [TOKEN.matic.address]: string // number
+  [TOKEN.wmatic.address]: string // number
+  [TOKEN.dai.address]: string // number
+  [TOKEN.usdt.address]: string // number
+  [TOKEN.usdc.address]: string // number
+  [TOKEN.inst.address]: string // number
+  [TOKEN.wbtc.address]: string // number
+}

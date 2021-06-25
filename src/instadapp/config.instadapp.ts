@@ -50,6 +50,11 @@ export const TOKEN = {
     decimals: 18,
     address: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
   },
+  inst: {
+    symbol: 'INST',
+    decimals: 18,
+    address: '0xf50D05A1402d0adAfA880D36050736f9f6ee7dee',
+  },
   amWmatic: {
     symbol: 'amWMATIC',
     decimals: 8,

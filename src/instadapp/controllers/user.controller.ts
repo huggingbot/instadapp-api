@@ -3,9 +3,9 @@ import { BaseController } from '~/base/controller.base'
 import { TRANSACTION_TYPE } from '~/configs/logger.config'
 import { IApiResponse, IApiResult } from '~/types/api.type'
 import { InstadappError } from '../error.instadapp'
-import { IStrategyReqBody, TProtocolName } from '../type.instadapp'
+import { IPosition, IStrategyReqBody, TProtocolName } from '../type.instadapp'
 import { INSTADAPP_AAVE_POSITION_URL, PROTOCOL_PARAM, USER_QUERY } from '../config.instadapp'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 
 export class User extends BaseController {
   private user: string
@@ -17,17 +17,15 @@ export class User extends BaseController {
     this.user = req.query[USER_QUERY] as string
   }
 
-  protected async doRequest(
-    req: Request<unknown, unknown, IStrategyReqBody, unknown>
-  ): Promise<IApiResult<IApiResponse>> {
+  protected async doRequest(req: Request): Promise<IApiResult<IApiResponse>> {
     try {
-      let res = { data: undefined }
+      let res: AxiosResponse<IPosition> | undefined
       const params = { user: this.user }
 
       if (this.protocolName === 'aave') {
-        res = await axios.get(INSTADAPP_AAVE_POSITION_URL, { params })
+        res = await axios.get<IPosition>(INSTADAPP_AAVE_POSITION_URL, { params })
       }
-      return this.success({ data: res.data }, 'Called user successful')
+      return this.success({ ...res?.data }, 'Called user position successful')
     } catch (err) {
       if (err instanceof InstadappError) {
         return this.badRequest(err)
