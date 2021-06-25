@@ -53,7 +53,7 @@ export class AaveStrategyService extends BaseStrategyService {
     const strategy = this.strategyMap[strategyName]
     try {
       const gasPrice = (await web3.eth.getGasPrice()) + toWei(String(EXTRA_GAS_PRICE_IN_GWEI), 'gwei')
-      const spells = strategy({ ...strategyArg, gasPrice })
+      const spells = await strategy({ ...strategyArg, gasPrice })
       const txHash = await spells.cast({ gasPrice })
       return txHash
     } catch (err) {

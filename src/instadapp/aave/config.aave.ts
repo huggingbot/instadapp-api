@@ -5,7 +5,7 @@ export const RATE_MODE = {
   variable: 2,
 } as const
 
-export const EXTRA_GAS_PRICE_IN_GWEI = 2
+export const EXTRA_GAS_PRICE_IN_GWEI = 0
 // export const FLASH_LOAN_FACTOR = 2.2
 export const FLASH_LOAN_FACTOR_WITH_SWAP = 3.3
 export const FLASH_BORROW_TOKEN = TOKEN.amWmatic
