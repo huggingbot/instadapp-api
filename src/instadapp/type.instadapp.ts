@@ -1,5 +1,5 @@
 import { dsa } from '~/utils/web3.util'
-import { PROTOCOL, RATE_MODE, TOKEN } from './config.instadapp'
+import { PROTOCOL, TOKEN } from './config.instadapp'
 
 type TProtocol = typeof PROTOCOL
 export type TProtocolName = keyof TProtocol
@@ -8,7 +8,7 @@ export type TProtocolBody = TProtocol[TProtocolName]
 export type ISpell = ReturnType<typeof dsa.Spell>
 export type IToken = typeof TOKEN[keyof typeof TOKEN]
 
-// Strategy types
+// Strategy names
 export enum EStrategyName {
   Save = 'save',
   Leverage = 'leverage',
@@ -16,14 +16,6 @@ export enum EStrategyName {
   PaybackAndWithdraw = 'paybackAndWithdraw',
   CollateralSwap = 'collateralSwap',
   DebtSwap = 'debtSwap',
-}
-export enum EStrategyReqBodyName {
-  StrategyName = 'strategyName',
-  StrategyArg = 'strategyArg',
-}
-export interface IStrategyReqBody {
-  [EStrategyReqBodyName.StrategyName]: EStrategyName
-  [EStrategyReqBodyName.StrategyArg]: IStrategyProps
 }
 
 // Strategy props
@@ -70,62 +62,71 @@ export type IStrategyProps =
   | ICollateralSwapProps
   | IDebtSwapProps
 
-// Method types
-export enum EMethodName {
-  Deposit = 'deposit',
-  Withdraw = 'withdraw',
-  Borrow = 'borrow',
-  Payback = 'payback',
-  FlashBorrowAndCast = 'flashBorrowAndCast',
-  EnableCollateral = 'enableCollateral',
-  FlashPayback = 'flashPayback',
-  Swap = 'swap',
+// Strategy types
+export enum EStrategyReqBodyName {
+  StrategyName = 'strategyName',
+  StrategyArg = 'strategyArg',
 }
+export interface IStrategyReqBody {
+  [EStrategyReqBodyName.StrategyName]: EStrategyName
+  [EStrategyReqBodyName.StrategyArg]: IStrategyProps
+}
+
+// Method types
 export enum EMethodReqBodyName {
   MethodName = 'methodName',
   MethodArg = 'methodArg',
 }
 export interface IMethodReqBody {
-  [EMethodReqBodyName.MethodName]: EMethodName
-  [EMethodReqBodyName.MethodArg]: IMethodProps
+  [EMethodReqBodyName.MethodName]: unknown
+  [EMethodReqBodyName.MethodArg]: unknown
 }
 
-// Method props
-interface IBaseSavingProps {
-  spells: ISpell
-  token: IToken
-  amount: number | string
-  getId?: number
-  setId?: number
+// User position
+export interface IPosition {
+  totalSupplyInEth: string // number
+  totalBorrowInEth: string // number
+  totalBorrowStableInEth: string // number
+  totalBorrowVariableInEth: string // number
+  maxBorrowLimitInEth: string // number
+  maxBorrowLiquidityLimitInEth: string // number
+  status: string // number
+  liquidation: string // number
+  maxLiquidation: string // number
+  ethPriceInUsd: string //number
+  pendingRewards: string //number
+  data: {
+    key: 'eth' | 'dai' | 'usdc' | 'usdt' | 'wbtc' | 'aave' | 'matic'
+    aTokenAddr:
+      | typeof TOKEN.amWeth.address
+      | typeof TOKEN.amDai.address
+      | typeof TOKEN.amUsdc.address
+      | typeof TOKEN.amUsdt.address
+      | typeof TOKEN.amWbtc.address
+      | typeof TOKEN.amAave.address
+      | typeof TOKEN.amWmatic.address
+    aTokenBal: string // number
+    aTokenKey: 'aeth' | 'adai' | 'ausdc' | 'ausdt' | 'awbtc' | 'aaave' | 'awmatic'
+    aDecimals: string // number
+    priceInEth: string // number
+    priceInUsd: string // number
+    supply: string // number
+    borrowStable: string // number
+    borrow: string // number
+    supplyRate: string // number
+    supplyYield: string // number
+    borrowStableRate: string // number
+    userBorrowStableRate: string // number
+    borrowStableYield: string // number
+    borrowRate: string // number
+    borrowYield: string // number
+    factor: string // number
+    liquidation: string // number
+    isEnabledAsCollateral: boolean
+    borrowEnabled: boolean
+    stableBorrowEnabled: boolean
+    availableLiquidity: string // number
+    supplyRewardRate: string // number
+    borrowRewardRate: string // number
+  }[]
 }
-interface IBaseLendingProps extends IBaseSavingProps {
-  rateMode?: typeof RATE_MODE[keyof typeof RATE_MODE]
-}
-export interface IDepositProps extends IBaseSavingProps {}
-export interface IWithdrawProps extends IBaseSavingProps {}
-export interface IBorrowProps extends IBaseLendingProps {}
-export interface IPaybackProps extends IBaseLendingProps {}
-export interface IEnableCollateralProps extends Pick<IBaseSavingProps, 'spells'> {
-  tokens: IToken[]
-}
-export interface ISwapProps extends Pick<IBaseSavingProps, 'spells' | 'setId'> {
-  buyToken: IToken
-  sellToken: IToken
-  sellAmount: number | string
-  unitAmount: number | string
-  callData: string
-}
-export interface IFlashPaybackProps extends IBaseSavingProps {}
-export interface IFlashBorrowAndCastProps extends Omit<IBaseSavingProps, 'getId' | 'setId'> {
-  route?: number
-  castData: ISpell
-}
-export type IMethodProps =
-  | IDepositProps
-  | IWithdrawProps
-  | IBorrowProps
-  | IPaybackProps
-  | IEnableCollateralProps
-  | ISwapProps
-  | IFlashPaybackProps
-  | IFlashBorrowAndCastProps

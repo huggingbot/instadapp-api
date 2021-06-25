@@ -1,34 +1,33 @@
+import axios from 'axios'
 import Big from 'big.js'
 import { Request } from 'express'
+import { ParaSwap } from 'paraswap'
 import { toWei } from 'web3-utils'
 import { ILogContext } from '~/types/api.type'
 import { dsa, web3 } from '~/utils/web3.util'
-import {
-  EXTRA_GAS_PRICE_IN_GWEI,
-  ENABLE_COLLATERAL_TOKEN,
-  FLASH_BORROW_TOKEN,
-  FLASH_LOAN_FACTOR_WITH_SWAP,
-  MAX_UINT256,
-  getInstadappQuoteUrl,
-} from '../config.instadapp'
+import { BaseStrategyService } from '../base/strategy-service.base'
+import { getInstadappQuoteUrl, MAX_UINT256 } from '../config.instadapp'
 import { EInstadappErrorType, InstadappError } from '../error.instadapp'
 import {
   EStrategyName,
-  IStrategyReqBody,
-  IDepositAndBorrowProps,
-  IPaybackAndWithdrawProps,
-  IToken,
-  ILeverageProps,
-  IDebtSwapProps,
   ICollateralSwapProps,
+  IDebtSwapProps,
+  IDepositAndBorrowProps,
+  ILeverageProps,
+  IPaybackAndWithdrawProps,
   ISaveProps,
   ISpell,
   IStrategyProps,
+  IStrategyReqBody,
+  IToken,
 } from '../type.instadapp'
-import { BaseStrategyService } from '../base/strategy-service.base'
+import {
+  ENABLE_COLLATERAL_TOKEN,
+  EXTRA_GAS_PRICE_IN_GWEI,
+  FLASH_BORROW_TOKEN,
+  FLASH_LOAN_FACTOR_WITH_SWAP,
+} from './config.aave'
 import { AaveMethodService } from './method-service.aave'
-import axios from 'axios'
-import { ParaSwap } from 'paraswap'
 
 export class AaveStrategyService extends BaseStrategyService {
   private method: AaveMethodService
@@ -63,7 +62,12 @@ export class AaveStrategyService extends BaseStrategyService {
   }
 
   @AaveStrategyService.objectifyToken
-  private depositAndBorrow({ depositToken, depositAmount, borrowToken, borrowAmount }: IDepositAndBorrowProps): ISpell {
+  protected depositAndBorrow({
+    depositToken,
+    depositAmount,
+    borrowToken,
+    borrowAmount,
+  }: IDepositAndBorrowProps): ISpell {
     const spells = dsa.Spell()
     this.method.deposit({ spells, token: depositToken, amount: depositAmount })
     this.method.borrow({ spells, token: borrowToken, amount: borrowAmount })
@@ -71,7 +75,7 @@ export class AaveStrategyService extends BaseStrategyService {
   }
 
   @AaveStrategyService.objectifyToken
-  private paybackAndWithdraw({
+  protected paybackAndWithdraw({
     paybackToken,
     paybackAmount,
     withdrawToken,
@@ -84,7 +88,7 @@ export class AaveStrategyService extends BaseStrategyService {
   }
 
   @AaveStrategyService.objectifyToken
-  private async leverage({ depositToken, borrowToken, borrowAmount, gasPrice }: ILeverageProps): Promise<ISpell> {
+  protected async leverage({ depositToken, borrowToken, borrowAmount, gasPrice }: ILeverageProps): Promise<ISpell> {
     const id = Date.now()
     const quote = await this.getQuote(depositToken, borrowToken, borrowAmount)
     const txParams = await this.buildParaswapTxParams(depositToken, borrowToken, borrowAmount, gasPrice)
@@ -126,7 +130,7 @@ export class AaveStrategyService extends BaseStrategyService {
   }
 
   @AaveStrategyService.objectifyToken
-  private async save({ withdrawToken, paybackToken, withdrawAmount, gasPrice }: ISaveProps): Promise<ISpell> {
+  protected async save({ withdrawToken, paybackToken, withdrawAmount, gasPrice }: ISaveProps): Promise<ISpell> {
     const id = Date.now()
     const quote = await this.getQuote(paybackToken, withdrawToken, withdrawAmount)
     const txParams = await this.buildParaswapTxParams(paybackToken, withdrawToken, withdrawAmount, gasPrice)
@@ -173,7 +177,7 @@ export class AaveStrategyService extends BaseStrategyService {
   }
 
   @AaveStrategyService.objectifyToken
-  private async collateralSwap({ fromToken, toToken, fromAmount, gasPrice }: ICollateralSwapProps): Promise<ISpell> {
+  protected async collateralSwap({ fromToken, toToken, fromAmount, gasPrice }: ICollateralSwapProps): Promise<ISpell> {
     const id = Date.now()
     const quote = await this.getQuote(toToken, fromToken, fromAmount)
     const txParams = await this.buildParaswapTxParams(toToken, fromToken, fromAmount, gasPrice)
@@ -213,7 +217,7 @@ export class AaveStrategyService extends BaseStrategyService {
   }
 
   @AaveStrategyService.objectifyToken
-  private async debtSwap({ fromToken, toToken, toAmount, gasPrice }: IDebtSwapProps): Promise<ISpell> {
+  protected async debtSwap({ fromToken, toToken, toAmount, gasPrice }: IDebtSwapProps): Promise<ISpell> {
     /* Useful to calculate toAmount if args: { fromToken, toToken, fromAmount } */
     // const prices = await this.getPrices()
     // const fromTokenPrice = Number(prices[fromToken])

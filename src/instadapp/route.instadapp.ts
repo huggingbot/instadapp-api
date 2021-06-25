@@ -3,6 +3,7 @@ import { Strategy } from './controllers/strategy.controller'
 import { INSTADAPP_API_VERSION, PROTOCOL_PARAM } from './config.instadapp'
 import { strategyValidationMiddleware } from './validator.instadapp'
 import { Method } from './controllers/method.controller'
+import { User } from './controllers/user.controller'
 
 const instadappApiBaseRoute = `/api/instadapp/v${INSTADAPP_API_VERSION}`
 
@@ -15,6 +16,11 @@ instadappRouter.post(
 instadappRouter.post(
   `${instadappApiBaseRoute}/:${PROTOCOL_PARAM}/method`,
   (req: Request, res: Response) => void new Method(req, res).handleRequest()
+)
+
+instadappRouter.get(
+  `${instadappApiBaseRoute}/:${PROTOCOL_PARAM}/position`,
+  (req: Request, res: Response) => void new User(req, res).handleRequest()
 )
 
 export default instadappRouter
