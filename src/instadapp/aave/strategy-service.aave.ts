@@ -100,7 +100,7 @@ export class AaveStrategyService extends BaseStrategyService {
       token: borrowToken,
       amount: borrowAmount,
     })
-    // Only swap if deposit and borrow tokens are different
+    // Only swap if depositToken and borrowToken are different
     if (depositToken.address !== borrowToken.address) {
       this.method.swap({
         spells: nestedSpells,
@@ -111,8 +111,11 @@ export class AaveStrategyService extends BaseStrategyService {
         callData: txParams.data,
         setId: id,
       })
+      this.method.deposit({ spells: nestedSpells, token: depositToken, amount: 0, getId: id })
+    } else {
+      // depositToken and borrowToken are the same
+      this.method.deposit({ spells: nestedSpells, token: depositToken, amount: borrowAmount })
     }
-    this.method.deposit({ spells: nestedSpells, token: depositToken, amount: 0, getId: id })
     this.method.flashPayback({
       spells: nestedSpells,
       token: FLASH_BORROW_TOKEN,
@@ -142,7 +145,7 @@ export class AaveStrategyService extends BaseStrategyService {
       token: withdrawToken,
       amount: withdrawAmount,
     })
-    // Only swap if withdraw and payback tokens are different
+    // Only swap if withdrawToken and paybackToken are different
     if (withdrawToken.address !== paybackToken.address) {
       this.method.swap({
         spells: nestedSpells,
@@ -153,13 +156,20 @@ export class AaveStrategyService extends BaseStrategyService {
         callData: txParams.data,
         setId: id,
       })
+      this.method.payback({
+        spells: nestedSpells,
+        token: paybackToken,
+        amount: MAX_UINT256,
+        getId: id,
+      })
+    } else {
+      // withdrawToken and paybackToken are the same
+      this.method.payback({
+        spells: nestedSpells,
+        token: paybackToken,
+        amount: withdrawAmount,
+      })
     }
-    this.method.payback({
-      spells: nestedSpells,
-      token: paybackToken,
-      amount: MAX_UINT256,
-      getId: id,
-    })
     this.method.flashPayback({
       spells: nestedSpells,
       token: FLASH_BORROW_TOKEN,
@@ -185,21 +195,31 @@ export class AaveStrategyService extends BaseStrategyService {
     const nestedSpells = dsa.Spell()
     this.method.enableCollateral({ spells: nestedSpells, tokens: [ENABLE_COLLATERAL_TOKEN] })
     this.method.withdraw({ spells: nestedSpells, token: fromToken, amount: fromAmount })
-    this.method.swap({
-      spells: nestedSpells,
-      buyToken: toToken,
-      sellToken: fromToken,
-      sellAmount: fromAmount,
-      unitAmount: quote.data.unitAmt,
-      callData: txParams.data,
-      setId: id,
-    })
-    this.method.deposit({
-      spells: nestedSpells,
-      token: toToken,
-      amount: 0,
-      getId: id,
-    })
+    // Only swap if fromToken and toToken are different
+    if (fromToken.address !== toToken.address) {
+      this.method.swap({
+        spells: nestedSpells,
+        buyToken: toToken,
+        sellToken: fromToken,
+        sellAmount: fromAmount,
+        unitAmount: quote.data.unitAmt,
+        callData: txParams.data,
+        setId: id,
+      })
+      this.method.deposit({
+        spells: nestedSpells,
+        token: toToken,
+        amount: 0,
+        getId: id,
+      })
+    } else {
+      // fromToken and toToken are the same
+      this.method.deposit({
+        spells: nestedSpells,
+        token: toToken,
+        amount: fromAmount,
+      })
+    }
     this.method.flashPayback({
       spells: nestedSpells,
       token: FLASH_BORROW_TOKEN,
@@ -234,21 +254,31 @@ export class AaveStrategyService extends BaseStrategyService {
     const nestedSpells = dsa.Spell()
     this.method.enableCollateral({ spells: nestedSpells, tokens: [ENABLE_COLLATERAL_TOKEN] })
     this.method.borrow({ spells: nestedSpells, token: toToken, amount: toAmount })
-    this.method.swap({
-      spells: nestedSpells,
-      buyToken: fromToken,
-      sellToken: toToken,
-      sellAmount: toAmount,
-      unitAmount: quote.data.unitAmt,
-      callData: txParams.data,
-      setId: id,
-    })
-    this.method.payback({
-      spells: nestedSpells,
-      token: fromToken,
-      amount: MAX_UINT256,
-      getId: id,
-    })
+    // Only swap if fromToken and toToken are different
+    if (fromToken.address !== toToken.address) {
+      this.method.swap({
+        spells: nestedSpells,
+        buyToken: fromToken,
+        sellToken: toToken,
+        sellAmount: toAmount,
+        unitAmount: quote.data.unitAmt,
+        callData: txParams.data,
+        setId: id,
+      })
+      this.method.payback({
+        spells: nestedSpells,
+        token: fromToken,
+        amount: MAX_UINT256,
+        getId: id,
+      })
+    } else {
+      // fromToken and toToken are the same
+      this.method.payback({
+        spells: nestedSpells,
+        token: fromToken,
+        amount: toAmount,
+      })
+    }
     this.method.flashPayback({
       spells: nestedSpells,
       token: FLASH_BORROW_TOKEN,
