@@ -379,10 +379,9 @@ export class DSA {
     console.log(`DSA config:\n version: ${this.instance.version}\n chainId: ${this.instance.chainId}`)
     console.log(`Casting spells to DSA(#${this.instance.id})...`)
 
-    // const transaction = await this.transaction.send(transactionConfig)
+    const transaction = await this.transaction.send(transactionConfig)
 
-    // return transaction
-    return 'haha'
+    return transaction
   }
 
   private async getData(params: { spells: Spells; origin?: string }) {
