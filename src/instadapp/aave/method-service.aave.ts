@@ -57,7 +57,9 @@ export class AaveMethodService extends BaseMethodService {
     const method = this.methodMap[methodName]
     try {
       const spells = method(methodArg)
-      const gasPrice = (await web3.eth.getGasPrice()) + toWei(String(EXTRA_GAS_PRICE_IN_GWEI), 'gwei')
+      const estimatedGasPrice = Number(await web3.eth.getGasPrice())
+      const extraGasPrice = Number(toWei(String(EXTRA_GAS_PRICE_IN_GWEI), 'gwei'))
+      const gasPrice = `${estimatedGasPrice + extraGasPrice}`
       const txHash = await spells.cast({ gasPrice })
       return txHash
     } catch (err) {

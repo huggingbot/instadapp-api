@@ -52,7 +52,9 @@ export class AaveStrategyService extends BaseStrategyService {
   async callStrategy({ strategyName, strategyArg }: IStrategyReqBody): Promise<string | undefined> {
     const strategy = this.strategyMap[strategyName]
     try {
-      const gasPrice = (await web3.eth.getGasPrice()) + toWei(String(EXTRA_GAS_PRICE_IN_GWEI), 'gwei')
+      const estimatedGasPrice = Number(await web3.eth.getGasPrice())
+      const extraGasPrice = Number(toWei(String(EXTRA_GAS_PRICE_IN_GWEI), 'gwei'))
+      const gasPrice = `${estimatedGasPrice + extraGasPrice}`
       const spells = await strategy({ ...strategyArg, gasPrice })
       const txHash = await spells.cast({ gasPrice })
       return txHash
